@@ -23,7 +23,7 @@ opts.jwtFromRequest = ExtractJwt.fromBodyField("t");
 opts.secretOrKey = "qwe123qwe123";
 passport.use(
   new JwtStrategy(opts, async function(jwt_payload, done) {
-    console.log(jwt_payload);
+    //console.log(jwt_payload);
     await User.findOne({ _id: jwt_payload._id }, function(err, user) {
       if (err) {
         console.log(err);
@@ -62,7 +62,7 @@ app.post("/signup", (req, res) => {
 
 app.post(
   "/login",
-  passport.authenticate("jwt", { session: false }),
+  passport.authenticate("jwt", { session: false, failWithError: true }),
   (req, res) => {
     res.send({ sucess: true, _id: req.user._id, email: req.user.email });
   }

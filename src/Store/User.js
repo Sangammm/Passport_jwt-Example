@@ -27,6 +27,7 @@ class userstore {
         this.auth = true;
         this.person._id = data.t;
         this.person.email = data.email;
+        localStorage.removeItem("t");
         localStorage.setItem("t", data.t);
       } else {
         this.auth = false;

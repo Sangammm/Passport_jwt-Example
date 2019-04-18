@@ -26,13 +26,12 @@ export const request = async (api, method, body = undefined) => {
 const App = observer(() => {
   const store = useContext(userstore);
   useEffect(() => {
-    console.log("inside use effect");
     var token = localStorage.getItem("t");
-    console.log("token", token);
+    console.log(token);
+
     if (token) {
       request("/login", "POST", { t: token }).then(data => {
-        console.log(data);
-        if (data.sucess) {
+        if (data && data.sucess) {
           store.user.auth = true;
           store.user.person.email = data.email;
         }
@@ -42,6 +41,11 @@ const App = observer(() => {
       store.user.auth = false;
     }
   }, []);
+
+  const logout = () => {
+    localStorage.removeItem("t");
+    store.user.auth = false;
+  };
   return (
     <div className="App">
       {!store.user.auth ? (
@@ -50,7 +54,7 @@ const App = observer(() => {
         <React.Fragment>
           <h2>Welcome! {store.user.person.email}</h2>
           <p>Automatic sign in using passport js</p>
-          <button onClick={() => localStorage.removeItem("t")}>Logout</button>
+          <button onClick={logout}>Logout</button>
         </React.Fragment>
       )}
     </div>
