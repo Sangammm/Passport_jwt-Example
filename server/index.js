@@ -6,7 +6,7 @@ const { User } = require("./models/user");
 var JwtStrategy = require("passport-jwt").Strategy;
 var ExtractJwt = require("passport-jwt").ExtractJwt;
 const passport = require("passport");
-// var jwt = require("jsonwebtoken");
+const jwt = require("jsonwebtoken");
 
 mongoose.connect("mongodb://localhost:27017/Session", {
   useNewUrlParser: true
@@ -30,12 +30,10 @@ passport.use(
         return done(err, false);
       }
       if (user) {
-        console.log("here?");
-
+        // console.log("here?");
         return done(null, user);
       } else {
-        console.log("hereit is");
-
+        // console.log("hereit is");
         return done("signupboi", false);
       }
     });
@@ -47,22 +45,26 @@ app.post("/signup", (req, res) => {
     email: req.body.email,
     password: req.body.password
   });
-  console.log("user: ", user);
-
-  user.save().then(data => {
-    var token = require("jsonwebtoken").sign({ _id: data._id }, "qwe123qwe123");
-    res.send({
-      t: token
-    });
-  });
+  user.save().then(
+    data => {
+      var token = jwt.sign({ _id: data._id }, "qwe123qwe123");
+      res.send({
+        sucess: true,
+        t: token,
+        email: data.email
+      });
+    },
+    err => {
+      console.log(err);
+    }
+  );
 });
 
 app.post(
   "/login",
   passport.authenticate("jwt", { session: false }),
-  (req, res, err) => {
-    console.log("insideit.", err);
-    res.send({ sucess: true });
+  (req, res) => {
+    res.send({ sucess: true, _id: req.user._id, email: req.user.email });
   }
 );
 

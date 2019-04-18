@@ -1,8 +1,14 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
+import { observer, useObservable } from "mobx-react-lite";
 import "./App.css";
 
+import userstore from "./Store/User";
+
+import Form from "./Components/Form";
+
 const url = "http://localhost:3002";
-export const request = async (api, method, body) => {
+
+export const request = async (api, method, body = undefined) => {
   const res = await fetch(`${url}${api}`, {
     method: method,
     headers: {
@@ -17,67 +23,37 @@ export const request = async (api, method, body) => {
   }
 };
 
-function App() {
-  const check = async () => {
-    const res = await fetch(`${url}/`);
-    if (res.ok) {
-      let data = await res.json();
-      if (data.Auth) {
-        setAuth(true);
-        setUser(data.User);
-      }
-    }
-  };
-
-  const signup = async body => {
-    const data = await request("/signup", "POST", body);
-    if (data.Auth) {
-      setAuth(true);
-      setUser(data.User);
-    }
-  };
-
-  const [email, setEmail] = useState("");
+const App = observer(() => {
+  const store = useContext(userstore);
   useEffect(() => {
-    fetch(`${url}/`)
-      .then(res => res.json())
-      .then(data => {
-        if (data.auth) {
-          setAuth(true);
-          setUser(data.User);
+    console.log("inside use effect");
+    var token = localStorage.getItem("t");
+    console.log("token", token);
+    if (token) {
+      request("/login", "POST", { t: token }).then(data => {
+        console.log(data);
+        if (data.sucess) {
+          store.user.auth = true;
+          store.user.person.email = data.email;
         }
       });
+      console.log(store.user.person);
+    } else {
+      store.user.auth = false;
+    }
   }, []);
-
-  const [Auth, setAuth] = useState(false);
-  const [User, setUser] = useState(null);
-
-  check();
   return (
     <div className="App">
-      {!Auth ? (
-        <form>
-          <label htmlFor="name">Enter your name: </label>
-          <input
-            id="name"
-            type="text"
-            value={email}
-            onChange={e => setEmail(e.target.value)}
-          />
-          <button
-            type="submit"
-            onClick={e => {
-              e.preventDefault();
-              signup({ email: email });
-            }}
-          >
-            SignUp
-          </button>
-        </form>
+      {!store.user.auth ? (
+        <Form />
       ) : (
-        <h2>{User}</h2>
+        <React.Fragment>
+          <h2>Welcome! {store.user.person.email}</h2>
+          <p>Automatic sign in using passport js</p>
+          <button onClick={() => localStorage.removeItem("t")}>Logout</button>
+        </React.Fragment>
       )}
     </div>
   );
-}
+});
 export default App;

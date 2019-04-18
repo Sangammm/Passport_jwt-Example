@@ -6,6 +6,8 @@
     "bcrypt": "^3.0.6",
     "cors": "^2.8.5",
     "jsonwebtoken": "^8.5.1",
+    "mobx": "^5.9.4",
+    "mobx-react-lite": "^1.2.0",
     "passport": "^0.4.0",
     "passport-jwt": "^4.0.0",
     "passport-local": "^1.0.0",
